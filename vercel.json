@@ -1,12 +1,13 @@
 {
-  "version": 2,
-  "name": "nestjs-now",
+  "regions": ["lhr1"],
+
   "builds": [
     {
       "src": "dist/main.js",
       "use": "@now/node"
     }
   ],
+
   "routes": [
     {
       "src": "/(.*)",
