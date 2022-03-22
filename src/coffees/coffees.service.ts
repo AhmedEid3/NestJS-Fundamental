@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { CreatCoffeeDto } from './dto/create-coffee.dto';
+import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Coffee } from './entities/coffee.entity';
 
 @Injectable()
@@ -12,25 +15,53 @@ export class CoffeesService {
     },
   ];
 
-  findAll() {
-    return this.coffees;
+  findAll(paginationQuery: PaginationQueryDto) {
+    const { limit, offset } = paginationQuery;
+
+    if (limit >= 0 && offset > 0) {
+      return this.coffees.slice(offset - 1, limit);
+    } else if (limit >= 0) {
+      return this.coffees.slice(0, limit);
+    } else if (offset > 0) {
+      return this.coffees.slice(offset - 1);
+    } else {
+      return this.coffees;
+    }
   }
 
   findOne(id: number) {
-    return this.coffees.find((coffee) => coffee.id === +id);
-  }
+    const coffee = this.coffees.find((coffee) => coffee.id === +id);
 
-  create(data: any) {
-    this.coffees.push(data);
-  }
-
-  update(id: number, data: any) {
-    const existingCoffee = this.findOne(id);
-
-    if (existingCoffee) {
-      // Update here
-      console.log({ data });
+    if (!coffee) {
+      throw new NotFoundException(`Coffee #${id} not found`);
     }
+
+    return coffee;
+  }
+
+  create(createCoffeeDto: CreatCoffeeDto) {
+    const coffee = {
+      id: Math.floor(Math.random() * 100),
+      ...createCoffeeDto,
+    };
+    this.coffees.push(coffee);
+
+    return coffee;
+  }
+
+  update(id: number, updateCoffeeDto: UpdateCoffeeDto) {
+    const coffee = this.findOne(id);
+
+    if (!coffee) {
+      throw new NotFoundException(`Coffee #${id} not found`);
+    }
+
+    const coffeeIndex = this.coffees.findIndex((coffee) => coffee.id === +id);
+
+    const updateCoffee = { ...coffee, ...updateCoffeeDto };
+    this.coffees[coffeeIndex] = updateCoffee;
+
+    return updateCoffee;
   }
 
   remove(id: number) {
