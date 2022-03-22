@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CoffeesService } from './coffees.service';
 import { CreatCoffeeDto } from './dto/create-coffee.dto';
@@ -24,6 +25,7 @@ export class CoffeesController {
     return this.coffeesService.findAll(paginationQuery);
   }
 
+  @Public()
   @Get(':id/')
   findOne(@Param('id') id: number) {
     return this.coffeesService.findOne(id);
